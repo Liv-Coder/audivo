@@ -1,0 +1,49 @@
+# Flutter Monorepo — Cursor Rules
+# Full rules: AGENTS.md + DESIGN.md (read them before coding)
+
+## Startup
+- Read AGENTS.md, DESIGN.md, and the README for every package you touch.
+- When in doubt: ask. Never guess.
+
+## Architecture
+- Melos monorepo: apps/ for app code, packages/ for shared logic.
+- Packages never depend on apps/.
+- After pubspec changes: `melos bootstrap` (not `flutter pub get`).
+- No cross-feature imports. Use shared packages or public APIs.
+
+## Packages — always use, never re-implement
+- `logger`        → AppLogger (debug/info/warning/error/fatal)
+- `core`          → DioClient, Result<T>, Environment, KeyValueStore
+- `design_system` → AppTheme, AppSpacing, AppRadius, AppButton, AppCard, AppTextField
+- `storage`       → HiveStorageService
+- `routing`       → GoRouter entry points
+- Import from barrel only: package:foo/foo.dart (never package:foo/src/...)
+
+## Logging
+- No print() or debugPrint() in production code. Use AppLogger.
+- Include context (what, where, relevant IDs). Never log PII/tokens.
+
+## UI
+- Colors: Theme.of(context).colorScheme.* only. No Colors.* or Color(0xFF...).
+- Typography: Theme.of(context).textTheme.* only. No raw TextStyle sizes.
+- Spacing: AppSpacing.* (xs=4, sm=8, md=16, lg=24, xl=32, xxl=48, xxxl=64).
+- Radii: AppRadius.* (sm=4, md=8, lg=12, xl=16, full=999).
+- Responsive: MediaQuery.sizeOf(context) for screen, LayoutBuilder for widget.
+
+## Error handling
+- Return Result<T> at service/repo boundaries. Pattern-match at the call site.
+- Do not throw exceptions across feature boundaries.
+
+## Code style
+- Strict null safety. Sealed classes for Result. Pattern matching.
+- Prefer const constructors and final fields. Single quotes.
+- Every public API has a doc comment.
+
+## Testing
+- Every new feature/package change needs a test mirroring lib/ structure.
+- Widget tests: flutter_test. Pure Dart: package:test.
+- Run: melos run format && melos run analyze && melos run test
+
+## Commits
+- Conventional commits with scope: feat(core): add retry interceptor
+- Types: feat / fix / chore / refactor / test / docs
